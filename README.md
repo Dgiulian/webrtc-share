@@ -65,7 +65,7 @@ A peer-to-peer file sharing web application with end-to-end encryption. Files ar
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
+- pnpm 9+ (see [installation guide](https://pnpm.io/installation))
 
 ### Installation
 
@@ -74,28 +74,28 @@ A peer-to-peer file sharing web application with end-to-end encryption. Files ar
 cd webrtc-share
 
 # Install all dependencies
-npm run install:all
+pnpm install
 ```
 
 ### Development
 
 ```bash
 # Run both backend and frontend concurrently
-npm run dev
+pnpm dev
 
 # Or run separately:
-npm run dev:backend   # Backend on port 8084
-npm run dev:frontend  # Frontend on port 5173
+pnpm dev:backend   # Backend on port 8084
+pnpm dev:frontend  # Frontend on port 5173
 ```
 
 ### Production Build
 
 ```bash
 # Build both
-npm run build
+pnpm build
 
 # Start production server
-npm start
+pnpm start
 ```
 
 ## Deployment

@@ -15,5 +15,16 @@
   "type": "commonjs",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0",
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.0",
+    "@types/ws": "^8.5.0",
+    "nodemon": "^3.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
   }
 }
