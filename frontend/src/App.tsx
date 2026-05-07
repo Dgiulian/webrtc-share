@@ -334,31 +334,38 @@ function App() {
         // Try modern clipboard API first
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(shareUrl);
-        } else {
-          // Fallback for older browsers/mobile
-          const textArea = document.createElement("textarea");
-          textArea.value = shareUrl;
-          textArea.style.position = "fixed";
-          textArea.style.left = "-9999px";
-          textArea.style.top = "0";
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          
-          const successful = document.execCommand('copy');
-          document.body.removeChild(textArea);
-          
-          if (!successful) {
-            throw new Error('Copy command failed');
-          }
+          setShowCopyToast(true);
+          setTimeout(() => setShowCopyToast(false), 2000);
+          return;
         }
         
-        setShowCopyToast(true);
-        setTimeout(() => setShowCopyToast(false), 2000);
+        // Fallback for older browsers/mobile
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+        document.body.appendChild(textArea);
+        
+        // Select the text
+        textArea.focus();
+        textArea.select();
+        textArea.setSelectionRange(0, 99999); // For mobile
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (successful) {
+          setShowCopyToast(true);
+          setTimeout(() => setShowCopyToast(false), 2000);
+        } else {
+          throw new Error('Copy command failed');
+        }
       } catch (err) {
         console.error('Failed to copy:', err);
-        // The URL is displayed in a selectable div on mobile
-        // User can long-press the URL text to select and copy manually
+        // On mobile, show an alert with instructions
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+          alert('Auto-copy not supported. Please tap and hold the link text to select it, then copy.');
+        }
       }
     };
     
@@ -577,16 +584,20 @@ function App() {
             {/* Mobile layout */}
             <div className="sm:hidden">
               <div 
-                className="px-4 py-3 bg-black/30 text-white rounded-lg text-sm font-mono border border-white/10 mb-3 break-all"
+                className="px-4 py-3 bg-black/30 text-white rounded-lg text-sm font-mono border border-white/10 mb-3 break-all select-text cursor-text"
+                style={{ userSelect: 'text', WebkitUserSelect: 'text' }}
               >
                 {shareUrl}
               </div>
               <button
                 onClick={copyUrl}
-                className="w-full px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg transition-colors text-sm font-medium"
+                className="w-full px-4 py-3 bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-white rounded-lg transition-colors text-sm font-medium"
               >
                 Copy Link to Clipboard
               </button>
+              <p className="text-white/40 text-xs mt-2 text-center">
+                Tap and hold the link above to select & copy manually
+              </p>
             </div>
           </div>
           <div className="flex items-center justify-center gap-2 text-white/60">
