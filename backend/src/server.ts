@@ -31,7 +31,7 @@ interface SignalingMessage {
 
 const rooms = new Map<string, Room>();
 const ROOM_EXPIRATION_MS = 5 * 60 * 1000; // 5 minutes
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8084;
 
 // Clean up expired rooms periodically
 setInterval(() => {
