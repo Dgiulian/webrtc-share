@@ -100,38 +100,138 @@ pnpm start
 
 ## Deployment
 
-### Backend (Fly.io)
+You can deploy both the backend and frontend to Fly.io for a complete self-hosted solution.
+
+### Prerequisites
+
+1. **Install Fly.io CLI**
+   ```bash
+   # macOS/Linux
+   curl -L https://fly.io/install.sh | sh
+   
+   # Or using Homebrew
+   brew install flyctl
+   
+   # Windows (PowerShell)
+   iwr https://fly.io/install.ps1 -useb | iex
+   ```
+
+2. **Login to Fly.io**
+   ```bash
+   fly auth login
+   ```
+
+### Step 1: Deploy the Backend
 
 ```bash
+# Navigate to backend directory
 cd backend
+
+# Create and deploy the app
+fly launch --name webrtc-share-backend --region iad --no-deploy
+
+# Deploy
 fly deploy
 ```
 
-Your backend will be available at `https://webrtc-share-backend.fly.dev` (or your custom domain).
+**Note:** The first deploy will create the app and provision resources.
 
-### Frontend (Fly.io)
+**After deployment:**
+- Your backend URL will be: `https://webrtc-share-backend.fly.dev`
+- Check logs: `fly logs`
+- View status: `fly status`
+
+### Step 2: Deploy the Frontend
 
 ```bash
+# Navigate to frontend directory
 cd frontend
 
-# Set the backend URL as a secret
+# Create the app (first time only)
+fly launch --name webrtc-share-frontend --region iad --no-deploy
+
+# Set the backend URL as a secret (required!)
 fly secrets set VITE_SIGNALING_SERVER=wss://webrtc-share-backend.fly.dev
 
 # Deploy
 fly deploy
 ```
 
-Alternatively, you can deploy the frontend to Vercel:
+**Important:** Replace `webrtc-share-backend.fly.dev` with your actual backend URL from Step 1.
+
+**After deployment:**
+- Your frontend URL will be: `https://webrtc-share-frontend.fly.dev`
+- The app is now ready to use!
+
+### Alternative: Deploy Frontend to Vercel
+
+If you prefer to use Vercel for the frontend:
 
 ```bash
 cd frontend
+
+# Deploy to Vercel
 vercel
+
+# Then set the environment variable in Vercel dashboard:
+# VITE_SIGNALING_SERVER=wss://webrtc-share-backend.fly.dev
 ```
 
-Set environment variable in Vercel dashboard:
+### Post-Deployment
+
+Your app is now live! Share the frontend URL with users:
+- Frontend: `https://webrtc-share-frontend.fly.dev`
+- Backend (WebSocket): `wss://webrtc-share-backend.fly.dev`
+
+### Custom Domain (Optional)
+
+To use your own domain:
+
 ```bash
-VITE_SIGNALING_SERVER=wss://your-backend.fly.dev
+# Add custom domain to frontend
+fly certs add your-domain.com
+
+# Or for backend
+fly certs add api.your-domain.com
 ```
+
+Then update your DNS records to point to Fly.io.
+
+### Monitoring & Management
+
+```bash
+# View logs
+fly logs
+
+# Check app status
+fly status
+
+# Restart app
+fly apps restart webrtc-share-backend
+
+# Scale the app (run 2 instances)
+fly scale count 2
+
+# View app info
+fly info
+```
+
+### Troubleshooting
+
+**Issue: WebSocket connections fail**
+- Ensure you're using `wss://` (secure WebSocket) in production
+- Check `fly.toml` has WebSocket support enabled
+- Verify the `VITE_SIGNALING_SERVER` secret is set correctly
+
+**Issue: Build fails**
+```bash
+# Clear build cache and redeploy
+fly deploy --no-cache
+```
+
+**Issue: Environment variables not working**
+- For frontend: Use `fly secrets set KEY=value` (not regular env vars)
+- For backend: Set in `fly.toml` [env] section or use `fly secrets set`
 
 ## Security Features
 
