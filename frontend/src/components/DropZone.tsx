@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { getFilesFromDrop, getFilesFromInput } from '../utils/zip';
 import type { FileWithPath } from '../utils/zip';
 
@@ -9,7 +9,18 @@ interface DropZoneProps {
 
 export function DropZone({ onFilesSelected, disabled }: DropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Detect mobile devices
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+      setIsMobile(isMobileDevice);
+    };
+    checkMobile();
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -69,17 +80,31 @@ export function DropZone({ onFilesSelected, disabled }: DropZoneProps) {
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
       `}
     >
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        // @ts-expect-error webkitdirectory is non-standard but widely supported
-        webkitdirectory=""
-        directory=""
-        className="hidden"
-        onChange={handleFileInput}
-        disabled={disabled}
-      />
+      {isMobile ? (
+        // Mobile file input - no webkitdirectory support
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="*/*"
+          className="hidden"
+          onChange={handleFileInput}
+          disabled={disabled}
+        />
+      ) : (
+        // Desktop file input - with folder support
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          // @ts-expect-error webkitdirectory is non-standard but widely supported
+          webkitdirectory=""
+          directory=""
+          className="hidden"
+          onChange={handleFileInput}
+          disabled={disabled}
+        />
+      )}
 
       <div className="text-center">
         <div className="mb-4">
@@ -99,11 +124,11 @@ export function DropZone({ onFilesSelected, disabled }: DropZoneProps) {
         </div>
 
         <h3 className="text-xl font-medium text-white mb-2">
-          {isDragging ? 'Drop files here' : 'Drop files or click to browse'}
+          {isDragging ? 'Drop files here' : (isMobile ? 'Tap to select files' : 'Drop files or click to browse')}
         </h3>
         
         <p className="text-white/60 text-sm">
-          Supports multiple files and folders
+          {isMobile ? 'Select multiple files from your device' : 'Supports multiple files and folders'}
         </p>
         
         <p className="text-white/40 text-xs mt-2">
