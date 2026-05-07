@@ -107,15 +107,28 @@ cd backend
 fly deploy
 ```
 
-### Frontend (Vercel)
+Your backend will be available at `https://webrtc-share-backend.fly.dev` (or your custom domain).
+
+### Frontend (Fly.io)
+
+```bash
+cd frontend
+
+# Set the backend URL as a secret
+fly secrets set VITE_SIGNALING_SERVER=wss://webrtc-share-backend.fly.dev
+
+# Deploy
+fly deploy
+```
+
+Alternatively, you can deploy the frontend to Vercel:
 
 ```bash
 cd frontend
 vercel
 ```
 
-Set environment variable:
-
+Set environment variable in Vercel dashboard:
 ```bash
 VITE_SIGNALING_SERVER=wss://your-backend.fly.dev
 ```
