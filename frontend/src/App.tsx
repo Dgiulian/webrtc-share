@@ -327,11 +327,42 @@ function App() {
     window.location.href = '/';
   }, []);
 
-  // Copy URL to clipboard
+  // Copy URL to clipboard with mobile fallback
   const copyUrl = useCallback(() => {
-    navigator.clipboard.writeText(shareUrl);
-    setShowCopyToast(true);
-    setTimeout(() => setShowCopyToast(false), 2000);
+    const copyToClipboard = async () => {
+      try {
+        // Try modern clipboard API first
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          // Fallback for older browsers/mobile
+          const textArea = document.createElement("textarea");
+          textArea.value = shareUrl;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-9999px";
+          textArea.style.top = "0";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textArea);
+          
+          if (!successful) {
+            throw new Error('Copy command failed');
+          }
+        }
+        
+        setShowCopyToast(true);
+        setTimeout(() => setShowCopyToast(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        // The URL is displayed in a selectable div on mobile
+        // User can long-press the URL text to select and copy manually
+      }
+    };
+    
+    copyToClipboard();
   }, [shareUrl]);
 
   // Reset and start over
@@ -528,7 +559,8 @@ function App() {
           <h3 className="text-xl font-medium text-white mb-4">Share Link Created!</h3>
           <div className="bg-glass-100 backdrop-blur-md rounded-xl p-4 mb-4 border border-white/10">
             <p className="text-white/60 text-sm mb-2">Share this link with the receiver:</p>
-            <div className="flex gap-2">
+            {/* Desktop layout */}
+            <div className="hidden sm:flex gap-2">
               <input
                 type="text"
                 value={shareUrl}
@@ -537,9 +569,23 @@ function App() {
               />
               <button
                 onClick={copyUrl}
-                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg transition-colors text-sm"
+                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg transition-colors text-sm whitespace-nowrap"
               >
-                Copy
+                Copy Link
+              </button>
+            </div>
+            {/* Mobile layout */}
+            <div className="sm:hidden">
+              <div 
+                className="px-4 py-3 bg-black/30 text-white rounded-lg text-sm font-mono border border-white/10 mb-3 break-all"
+              >
+                {shareUrl}
+              </div>
+              <button
+                onClick={copyUrl}
+                className="w-full px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg transition-colors text-sm font-medium"
+              >
+                Copy Link to Clipboard
               </button>
             </div>
           </div>
