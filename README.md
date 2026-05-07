@@ -2,6 +2,8 @@
 
 A peer-to-peer file sharing web application with end-to-end encryption. Files are transferred directly between browsers using WebRTC data channels, with no intermediate server storage.
 
+![alt text](docs/image.png)
+
 ## Features
 
 - 🔒 **End-to-End Encryption** - AES-GCM encryption with keys stored only in the URL hash
@@ -105,13 +107,14 @@ You can deploy both the backend and frontend to Fly.io for a complete self-hoste
 ### Prerequisites
 
 1. **Install Fly.io CLI**
+
    ```bash
    # macOS/Linux
    curl -L https://fly.io/install.sh | sh
-   
+
    # Or using Homebrew
    brew install flyctl
-   
+
    # Windows (PowerShell)
    iwr https://fly.io/install.ps1 -useb | iex
    ```
@@ -137,6 +140,7 @@ fly deploy
 **Note:** The first deploy will create the app and provision resources.
 
 **After deployment:**
+
 - Your backend URL will be: `https://webrtc-share-backend.fly.dev`
 - Check logs: `fly logs`
 - View status: `fly status`
@@ -160,6 +164,7 @@ fly deploy
 **Important:** Replace `webrtc-share-backend.fly.dev` with your actual backend URL from Step 1.
 
 **After deployment:**
+
 - Your frontend URL will be: `https://webrtc-share-frontend.fly.dev`
 - The app is now ready to use!
 
@@ -180,6 +185,7 @@ vercel
 ### Post-Deployment
 
 Your app is now live! Share the frontend URL with users:
+
 - Frontend: `https://webrtc-share-frontend.fly.dev`
 - Backend (WebSocket): `wss://webrtc-share-backend.fly.dev`
 
@@ -219,17 +225,20 @@ fly info
 ### Troubleshooting
 
 **Issue: WebSocket connections fail**
+
 - Ensure you're using `wss://` (secure WebSocket) in production
 - Check `fly.toml` has WebSocket support enabled
 - Verify the `VITE_SIGNALING_SERVER` secret is set correctly
 
 **Issue: Build fails**
+
 ```bash
 # Clear build cache and redeploy
 fly deploy --no-cache
 ```
 
 **Issue: Environment variables not working**
+
 - For frontend: Use `fly secrets set KEY=value` (not regular env vars)
 - For backend: Set in `fly.toml` [env] section or use `fly secrets set`
 
