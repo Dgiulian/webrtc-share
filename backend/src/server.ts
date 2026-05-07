@@ -1,5 +1,6 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from "uuid";
+import { env } from "./env";
 
 interface Room {
   id: string;
@@ -31,7 +32,7 @@ interface SignalingMessage {
 
 const rooms = new Map<string, Room>();
 const ROOM_EXPIRATION_MS = 5 * 60 * 1000; // 5 minutes
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8084;
+const PORT = env.PORT;
 
 // Clean up expired rooms periodically
 setInterval(() => {
